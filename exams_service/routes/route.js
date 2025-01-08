@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { addExam } from "../controller/controller.js";
+import { addExam, getStudentExams } from "../controller/controller.js";
 
 export const router = Router();
 
 router.route("/addexams").post(addExam);
+router.route("/studentexams/:id/:course").get(getStudentExams);

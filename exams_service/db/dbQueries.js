@@ -35,3 +35,31 @@ export const addExamToDb = (db, data) => {
     );
   });
 };
+
+export const getStudentExamsDB = (stuId,courseDB) => {
+  return new Promise((resolve, reject) => {
+    sql.query(
+      `SELECT * FROM ${courseDB}.exams WHERE student_id = ?`,
+      [stuId],
+      (err, res) => {
+        if (err) {
+          reject({
+            message: `Failed to fetch exams for studentId: ${parseInt(stuId)}`,
+            code: 400,
+            status: "fail",
+          });
+        }
+        console.log(err);
+        console.log(res);
+        if (!res.length) {
+          reject({
+            message: `Failed to fetch exams for studentId: ${stuId}`,
+            code: 404,
+            status: "fail",
+          });
+        }
+        resolve(res);
+      }
+    );
+  });
+};
