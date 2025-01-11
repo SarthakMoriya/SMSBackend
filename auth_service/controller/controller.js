@@ -8,7 +8,7 @@ import {
 } from "../db/dbQueries.js";
 
 export const signup = async (req, res) => {
-  const { name, password, email, secretKey } = req.body;
+  const { username, password, email, secretKey } = req.body;
 
   try {
     // Check if the email already exists
@@ -21,13 +21,16 @@ export const signup = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create the new user
-    const newUser = await createUser(email, hashedPassword, secretKey, name);
+    const newUser = await createUser(email, hashedPassword, secretKey, username);
 
     // Respond with the new user data
     return res.status(201).json(newUser);
   } catch (error) {
     console.error(error);
-    return res.status(500).json(error);
+    let code = error.code || 500;
+    let message = error.message || "Internal server error";
+    let status = error.status || "fail";
+    return res.status(code).json({ code, status, message });
   }
 };
 export const login = async (req, res) => {

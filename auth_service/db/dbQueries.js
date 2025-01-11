@@ -9,58 +9,61 @@ export const createUser = async (email, hashedPassword, secretKey, name) => {
       (err, response) => {
         if (err) {
           console.log(err);
-          reject({ message: "signup() --00--AB" });
+          reject({ message: "SQL ERROR", code: 400, status: fail });
         }
         resolve({
           message: "Account created successfully",
           code: 200,
           status: "success",
+          body: [],
         });
       }
     );
   });
 };
 export const checkExistingUser = async (email) => {
-    console.log(email)
   return new Promise((resolve, reject) => {
-    let query = `SELECT * FROM users WHERE email LIKE '${email}'`;
+    let query = `SELECT COUNT(*) as count FROM users WHERE email LIKE '${email}'`;
     sql.query(query, (err, response) => {
-        console.log(response)
+      console.log(response);
       if (err) {
         console.log(err);
-        reject({ message: "login() --01--AA" });
+        reject({
+          code: 400,
+          status: "fail",
+        });
       }
-      if (response.length) {
+      if (response[0].count>0) {
         reject({
           message: "Email already in use",
-          code: 200,
-          status: "success",
+          code: 400,
+          status: "fail",
         });
       }
       resolve({
-        unique:true,
+        unique: true,
       });
     });
   });
 };
 
 export const checkExistingUserLogin = async (email) => {
-return new Promise((resolve, reject) => {
-  let query = `SELECT * FROM users WHERE email LIKE '${email}'`;
-  sql.query(query, (err, response) => {
-    if (err) {
-      console.log(err);
-      reject({ message: "login() --01--AA" });
-    }
-    if (response.length) {
-      resolve({
-        message: "Account find",
-        code: 200,
-        status: "success",
-        body: response[0]
-      });
-    }
-    reject({ message: "login() --01--AB", status: "error",body:[] });
+  return new Promise((resolve, reject) => {
+    let query = `SELECT * FROM users WHERE email LIKE '${email}'`;
+    sql.query(query, (err, response) => {
+      if (err) {
+        console.log(err);
+        reject({ message: "login() --01--AA" });
+      }
+      if (response.length) {
+        resolve({
+          message: "Account find",
+          code: 200,
+          status: "success",
+          body: response[0],
+        });
+      }
+      reject({ message: "login() --01--AB", status: "error", body: [] });
+    });
   });
-});
 };
