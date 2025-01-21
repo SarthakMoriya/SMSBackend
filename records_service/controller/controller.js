@@ -21,8 +21,8 @@ export const createStudent = async (req, res) => {
 
 export const getCourseRecords = async (req, res) => {
   try {
-    const course  = req.params.course;
-    if (!course) {  
+    const course = req.params.course;
+    if (!course) {
       throw new Error({ message: `Course not provided`, status: 400 });
     }
     const isValidCourse = await checkCourseExists(course);
@@ -32,7 +32,10 @@ export const getCourseRecords = async (req, res) => {
         message: `Course ${course} records`,
         status: "success",
         code: 200,
-        body: records,
+        body: {
+          records,
+          courseCode: course,
+        },
       });
     }
   } catch (error) {
