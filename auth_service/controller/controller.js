@@ -5,7 +5,10 @@ import {
   checkExistingUser,
   checkExistingUserLogin,
   createUser,
+  findUserById,
+  updateUserPasswordById,
 } from "../db/dbQueries.js";
+import { errorResponse, successResponse } from "../utils/helper.js";
 
 export const signup = async (req, res) => {
   const { username, password, email, secretKey } = req.body;
@@ -21,7 +24,12 @@ export const signup = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create the new user
-    const newUser = await createUser(email, hashedPassword, secretKey, username);
+    const newUser = await createUser(
+      email,
+      hashedPassword,
+      secretKey,
+      username
+    );
 
     // Respond with the new user data
     return res.status(201).json(newUser);
@@ -69,7 +77,7 @@ export const verifyToken = async (req, res) => {
   try {
     let token = req.headers["authorization"];
     if (!token) {
-      return res.statu(404).json({
+      throw new Error({
         status: "Unauthorized",
         code: 400,
         message: "Invalid token or Expired Token",
@@ -78,7 +86,7 @@ export const verifyToken = async (req, res) => {
 
     let { iat, exp, teacherId } = jwt.verify(token, process.env.JWT_SECRET);
     if (iat < exp) {
-      return res.status(200).json({
+      return successResponse(res, {
         message: "Authentication Success",
         code: 200,
         status: "success",
@@ -92,9 +100,36 @@ export const verifyToken = async (req, res) => {
       });
     }
   } catch (error) {
-    let code = error.code || 500;
-    let message = error.message || "Internal Server Error";
-    let status = error.status || "fail";
-    return res.status(code).json({ message, code, status });
+    return errorResponse(res, error);
+  }
+};
+
+export const changePassword = async (req, res) => {
+  try {
+    const { id, oldPassword, newPassword } = req.body;
+
+    if (!id || !oldPassword || !newPassword)
+      return errorResponse(res, {
+        message: "Missing or invalid params",
+        code: 400,
+      });
+
+    let user = await findUserById(id);
+    let { password } = user.body[0];
+
+    let isCorrectPassword = await bcrypt.compare(oldPassword, password);
+    if (!isCorrectPassword)
+      return errorResponse(res, {
+        message: "Invalid password",
+        code: 400,
+      });
+
+    let hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    let updatePassword = await updateUserPasswordById(id, hashedPassword);
+
+    return successResponse(res, updatePassword);
+  } catch (error) {
+    return errorResponse(res, error);
   }
 };

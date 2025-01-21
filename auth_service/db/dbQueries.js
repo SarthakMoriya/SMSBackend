@@ -33,7 +33,7 @@ export const checkExistingUser = async (email) => {
           status: "fail",
         });
       }
-      if (response[0].count>0) {
+      if (response[0].count > 0) {
         reject({
           message: "Email already in use",
           code: 400,
@@ -64,6 +64,60 @@ export const checkExistingUserLogin = async (email) => {
         });
       }
       reject({ message: "login() --01--AB", status: "error", body: [] });
+    });
+  });
+};
+
+export const findUserById = (id) => {
+  return new Promise((resolve, reject) => {
+    let query = `SELECT password FROM users WHERE id=?`;
+
+    sql.query(query, [id], (err, response) => {
+      if (err) {
+        reject({
+          code: 500,
+          status: "fail",
+          message: "SQL query failed",
+        });
+        console.log("ERROR IN findUserById() SQL ERROR");
+      }
+      if (!response.length) {
+        reject({
+          code: 200,
+          status: "success",
+          message: "No users were found with id passed",
+          body: [],
+        });
+      }
+
+      resolve({
+        code: 200,
+        status: "success",
+        message: "User found with id passed",
+        body: [response[0]],
+      });
+    });
+  });
+};
+export const updateUserPasswordById = (id, password) => {
+  return new Promise((resolve, reject) => {
+    let query = `UPDATE users set password =? WHERE id=?`;
+
+    sql.query(query, [password, id], (err, response) => {
+      if (err) {
+        reject({
+          code: 500,
+          status: "fail",
+          message: "SQL query failed",
+        });
+        console.log("ERROR IN updateUserPasswordById() SQL ERROR");
+      }
+      resolve({
+        code: 200,
+        status: "success",
+        message: "Password Updated successfully",
+        body: [],
+      });
     });
   });
 };
