@@ -3,16 +3,17 @@ import { sql } from "./connectDb.js";
 export const addExamToDb = (db, data) => {
   return new Promise((resolve, reject) => {
     let query = `INSERT INTO ${db}.exams 
-    (student_id,semester_number,exam_name,subject_name,score,total_marks,exam_date) 
-    VALUES (?,?,?,?,?,?,?)`;
+    (student_id,semester_number,teacher_id,exam_type,exam_name,obt_marks,total_marks,exam_date) 
+    VALUES (?,?,?,?,?,?,?,?)`;
     sql.execute(
       query,
       [
         data.student_id,
         data.semester_number,
+        data.teacher_id,
+        data.exam_type,
         data.exam_name,
-        data.subject_name,
-        data.score,
+        data.obt_marks,
         data.total_marks,
         data.exam_date,
       ],
@@ -36,7 +37,7 @@ export const addExamToDb = (db, data) => {
   });
 };
 
-export const getStudentExamsDB = (stuId,courseDB) => {
+export const getStudentExamsDB = (stuId, courseDB) => {
   return new Promise((resolve, reject) => {
     sql.query(
       `SELECT * FROM ${courseDB}.exams WHERE student_id = ?`,
