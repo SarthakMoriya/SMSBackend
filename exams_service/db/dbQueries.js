@@ -1,3 +1,5 @@
+import { setStudentSemesterExamsCache } from "../redis/redisQueries.js";
+import { errorLogger } from "../utils/helper.js";
 import { sql } from "./connectDb.js";
 
 export const addExamToDb = (db, data) => {
@@ -62,5 +64,28 @@ export const getStudentExamsDB = (stuId, courseDB) => {
         resolve(res);
       }
     );
+  });
+};
+
+export const getSemesterExamsFromDb = (sql, db, stu_id, sem_num) => {
+  return new Promise((resolve, reject) => {
+    let query = `SELECT exam_id,semester_number,exam_type,exam_name,obt_marks,total_marks,exam_date FROM ${db}.exams WHERE student_id=${stu_id} AND semester_number=${sem_num}`;
+    sql.query(query, (err, res) => {
+      if (err) {
+        reject({
+          code: 400,
+          status: "fail",
+          message: "Sql Error",
+        });
+        errorLogger("getSemesterExams", "SQL");
+      }
+      setStudentSemesterExamsCache(stu_id, sem_num, res);
+      resolve({
+        code: 200,
+        status: "success",
+        message: "Data fetched successfully",
+        body: res,
+      });
+    });
   });
 };

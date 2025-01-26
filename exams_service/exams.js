@@ -1,8 +1,8 @@
 import express from "express";
 import cors from "cors";
 
-import { connectDB } from "./db/connectDb.js";
 import { router } from "./routes/route.js";
+import { establishRedis } from "./redis/redis.js";
 
 const app = express();
 
@@ -13,5 +13,5 @@ app.use('/exams',router)
 
 app.listen(3002, () => {
   console.log("Server listening on port 3002");
-  connectDB()
+  establishRedis();
 });
