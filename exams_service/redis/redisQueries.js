@@ -14,3 +14,22 @@ export const setStudentSemesterExamsCache = async (studId, sem_num, exams) => {
     console.error("Failed to cache exams:", error);
   }
 };
+export const setStudentSemesterExamsTotalCache = async (studId, semesters) => {
+  try {
+    const cacheKey = `student:${studId}:total`;
+
+    // Store each semester ttoal as a field in the hash
+    for (const semester of semesters) {
+      console.log(semester)
+      await client.hSet(
+        cacheKey,
+        `semester:${semester.semester_number}`,
+        JSON.stringify(semester)
+      );
+    }
+
+    console.log(`Exams total cached for student ${studId}`);
+  } catch (error) {
+    console.error("Failed to cache exams:", error);
+  }
+};

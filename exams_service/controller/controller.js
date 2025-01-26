@@ -2,6 +2,7 @@ import { closeDbConnection, establishedConnection } from "../db/connectDb.js";
 import {
   addExamToDb,
   getSemesterExamsFromDb,
+  getSemesterExamsTotalFromDb,
   getStudentExamsDB,
 } from "../db/dbQueries.js";
 import { client } from "../redis/redis.js";
@@ -28,7 +29,6 @@ export const getStudentExams = async (req, res) => {
   try {
     const studentId = req.params.id;
     const courseDB = req.params.course;
-    // console.log(id, course);
     if (!studentId)
       throw new Error({
         message: "No stundet id provided",
@@ -72,6 +72,37 @@ export const getSemesterExams = async (req, res) => {
       });
     } else {
       const exams = await getSemesterExamsFromDb(sql, course, studId, semester);
+      return res.status(200).json({ ...exams });
+    }
+    // console.log(cache);
+  } catch (error) {
+    return errorResponse(res, error);
+  } finally {
+    closeDbConnection(sql);
+  }
+};
+export const getSemesterExamsOverallTotal = async (req, res) => {
+  const sql = await establishedConnection();
+  try {
+    const { studId, course } = req.params;
+    if (!studId || !course) {
+      return errorResponse(res, { message: "Invalid Params" });
+    }
+    let cache = await client.hGetAll(`student:${studId}:total`);
+    if (Object.keys(cache).length) {
+      const semesterTotal = Object.values(cache).map((semester) =>
+        JSON.parse(semester)
+      );
+      return successResponse(res, {
+        message: "data fetched successfully from redis",
+        code: 200,
+        status: "success",
+        body: semesterTotal.sort(
+          (a, b) => a.semester_number - b.semester_number
+        ),
+      });
+    } else {
+      const exams = await getSemesterExamsTotalFromDb(sql, course, studId);
       return res.status(200).json({ ...exams });
     }
     // console.log(cache);
