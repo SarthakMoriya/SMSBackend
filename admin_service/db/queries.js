@@ -1,0 +1,1 @@
+export const selectCourseExamsQuery=()=>`select * from master.exams where course_id=? and semester=?;`
