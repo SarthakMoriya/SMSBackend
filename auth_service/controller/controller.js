@@ -53,6 +53,7 @@ export const login = async (req, res) => {
       password,
       existingUserRes.body.password
     );
+    console.log(hashedPassword)
     if (!hashedPassword) {
       throw new Error("Invalid credentials");
     }
