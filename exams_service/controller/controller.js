@@ -1,4 +1,7 @@
-import { closeDbConnection, establishedConnection } from "../db/connectDb.js";
+import pool, {
+  closeDbConnection,
+  establishedConnection,
+} from "../db/connectDb.js";
 import {
   addExamToDb,
   getSemesterExamsFromDb,
@@ -6,7 +9,9 @@ import {
   getStudentExamsDB,
 } from "../db/dbQueries.js";
 import { client } from "../redis/redis.js";
+import { checkCourseCode, setCache } from "../redis/redisQueries.js";
 import { errorResponse, successResponse } from "../utils/helper.js";
+import { getExamCodesDb } from "./controller.db.js";
 
 export const addExam = async (req, res) => {
   try {
@@ -110,5 +115,26 @@ export const getSemesterExamsOverallTotal = async (req, res) => {
     return errorResponse(res, error);
   } finally {
     closeDbConnection(sql);
+  }
+};
+
+export const getExamCodes = async (req, res) => {
+  try {
+    const { code } = req.params;
+    if (client.isOpen) {
+      const isExisting = await checkCourseCode("course-codes", code);
+      if (isExisting != null)
+        return successResponse(res, {
+          body: { isExisting },
+          message: "data fetched successfully",
+        });
+      else {
+        getExamCodesDb(res, code);
+      }
+    } else {
+      getExamCodesDb(res, code);
+    }
+  } catch (error) {
+    return errorResponse(res, error);
   }
 };

@@ -13,6 +13,7 @@ import { getCoursesFromDB } from "./dbController.js";
 export const insertCourse = async (req, res) => {
   try {
     const { name, code, semesters } = req.body;
+    console.log(req.body);
     const query = `INSERT INTO master.courses (name,code,semesters) VALUES ('${name}','${code}','${semesters}')`;
     const [rows] = await pool.query(query);
     if (rows.insertId) {

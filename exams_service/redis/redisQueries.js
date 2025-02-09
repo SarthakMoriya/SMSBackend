@@ -20,7 +20,7 @@ export const setStudentSemesterExamsTotalCache = async (studId, semesters) => {
 
     // Store each semester ttoal as a field in the hash
     for (const semester of semesters) {
-      console.log(semester)
+      console.log(semester);
       await client.hSet(
         cacheKey,
         `semester:${semester.semester_number}`,
@@ -31,5 +31,42 @@ export const setStudentSemesterExamsTotalCache = async (studId, semesters) => {
     console.log(`Exams total cached for student ${studId}`);
   } catch (error) {
     console.error("Failed to cache exams:", error);
+  }
+};
+
+// REDIS CACHE FUNCTION TO MAKE A SET DS
+export const setCache = async (key, values) => {
+  try {
+    if (client.isOpen) {
+      const stringValues = values.map(String);
+      stringValues.forEach(async (value) => await client.SADD(key, value));
+      await client.expire(key, 60 * 60 * 24); // Set expiration time to 24 hours
+    } else {
+      console.log("redis client is not open");
+    }
+  } catch (error) {
+    console.log("[REDIS] Error setting ", key);
+  }
+};
+
+export const checkCourseCode = async (key, code) => {
+  try {
+    if (client.isOpen) {
+      const allCodes = await client.SMEMBERS(key);
+      if (allCodes.length) {
+        const codes = await client.SISMEMBER(key, `${code}`);
+        if (codes) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return null;
+      }
+    } else {
+      console.log("redis client is not open");
+    }
+  } catch (error) {
+    console.log("[REDIS] Error setting ", key);
   }
 };
