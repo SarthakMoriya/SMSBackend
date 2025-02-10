@@ -34,6 +34,20 @@ export const setStudentSemesterExamsTotalCache = async (studId, semesters) => {
   }
 };
 
+// UPDATE CACHE ON EXAM UPDATE
+export const updateStudentSemesterExamCache = async (studId, sem_num, exam) => {
+  try {
+    const cacheKey = `student:${studId}:semester:${sem_num}`;
+    // Store each exam as a field in the hash
+    await client.hSet(cacheKey, `exam:${exam.exam_id}`, JSON.stringify(exam));
+    await client.expire(cacheKey, 3600);
+    await client.del(`student:${studId}:total`);
+    console.log(`Exams cached for student ${studId}, semester ${sem_num}`);
+  } catch (error) {
+    console.error("Failed to cache exams:", error);
+  }
+};
+
 // REDIS CACHE FUNCTION TO MAKE A SET DS
 export const setCache = async (key, values) => {
   try {

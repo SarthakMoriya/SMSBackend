@@ -11,7 +11,7 @@ import {
 import { client } from "../redis/redis.js";
 import { checkCourseCode, setCache } from "../redis/redisQueries.js";
 import { errorResponse, successResponse } from "../utils/helper.js";
-import { getExamCodesDb } from "./controller.db.js";
+import { getExamCodesDb, updateExamDb } from "./controller.db.js";
 
 export const addExam = async (req, res) => {
   try {
@@ -134,6 +134,29 @@ export const getExamCodes = async (req, res) => {
     } else {
       getExamCodesDb(res, code);
     }
+  } catch (error) {
+    return errorResponse(res, error);
+  }
+};
+
+// UPDATE EXAM
+export const updateExam = async (req, res) => {
+  try {
+    const { semester_no, exam_type, obt_marks, total_marks, exam_date,exam_id,student_id,exam_name } =
+      req.body;
+    const { course } = req.params;
+
+    await updateExamDb(res, {
+      semester_no,
+      exam_type,
+      obt_marks,
+      total_marks,
+      exam_date,
+      course,
+      exam_id,
+      student_id,
+      exam_name
+    });
   } catch (error) {
     return errorResponse(res, error);
   }

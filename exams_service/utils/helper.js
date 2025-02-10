@@ -6,10 +6,10 @@ export const errorResponse = (res, error) => {
 };
 
 export const successResponse = (res, data) => {
-  let message = data.message || "Success";
-  let code = data.code || 200;
+  let message = data?.message || "Success";
+  let code = data?.code || 200;
   let status = "success";
-  let body = data.body || [];
+  let body = data?.body || [];
   return res.status(code).json({ message, code, status, body });
 };
 
