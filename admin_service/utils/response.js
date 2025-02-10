@@ -2,9 +2,9 @@ export class ResponseBuilder {
   static successResponse(
     res,
     body = {},
+    message = "Success",
     code = 200,
-    status = "success",
-    message = "Success"
+    status = "success"
   ) {
     res.status(code).json({ code, status, message, body });
   }
@@ -12,9 +12,9 @@ export class ResponseBuilder {
   static errorResponse(
     res,
     body = {},
+    message = "Internal Server Error",
     code = 500,
-    status = "failure",
-    message = "Internal Server Error"
+    status = "failure"
   ) {
     res.status(code).json({ code, status, message, body });
   }

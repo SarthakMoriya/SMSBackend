@@ -9,7 +9,13 @@ import {
 } from "../redis/queries.js";
 import { client } from "../redis/redis.js";
 import { ResponseBuilder } from "../utils/response.js";
-import { getCourseExamsDB, getCoursesFromDB } from "./dbController.js";
+import {
+  approveVerifiedAccountDB,
+  deleteAccountDb,
+  getCourseExamsDB,
+  getCoursesFromDB,
+  getUnVerifiedAccountDB,
+} from "./dbController.js";
 
 export const insertCourse = async (req, res) => {
   try {
@@ -22,8 +28,8 @@ export const insertCourse = async (req, res) => {
     } else {
       ResponseBuilder.errorResponse(res);
     }
-    console.log(rows);
   } catch (error) {
+    console.log("Error at insertCourse()");
     error.sql
       ? ResponseBuilder.sqlerrorResponse(res, { ...error })
       : ResponseBuilder.errorResponse(res);
@@ -52,6 +58,7 @@ export const insertCourseExam = async (req, res) => {
       ResponseBuilder.errorResponse(res);
     }
   } catch (error) {
+    console.log("Error at insertCourseExam()");
     error.sql
       ? ResponseBuilder.sqlerrorResponse(res, { ...error })
       : ResponseBuilder.errorResponse(res);
@@ -70,6 +77,7 @@ export const getCourses = async (req, res) => {
       getCoursesFromDB(res);
     }
   } catch (error) {
+    console.log("Error at getCourses()");
     error.sql
       ? ResponseBuilder.sqlerrorResponse(res, { ...error })
       : ResponseBuilder.errorResponse(res);
@@ -91,8 +99,40 @@ export const getCoursesExams = async (req, res) => {
       getCourseExamsDB(res, course_id, semester);
     }
   } catch (error) {
+    console.log("Error at getCourseExams()");
     error.sql
       ? ResponseBuilder.sqlerrorResponse(res, { ...error })
       : ResponseBuilder.errorResponse(res);
+  }
+};
+
+// APPROVE UNVERIFIED ACCOUNTS
+export const approveVerifiedAccount = async (req, res) => {
+  try {
+    const { teacher_id, status } = req.params;
+    await approveVerifiedAccountDB(res, status, teacher_id);
+  } catch (error) {
+    console.log("Error at approveVerifiedAccount()");
+    ResponseBuilder.errorResponse(res);
+  }
+};
+// GET UNVERIFIED ACCOUNTS
+export const getUnverifiedAccounts = async (req, res) => {
+  try {
+    await getUnVerifiedAccountDB(res);
+  } catch (error) {
+    console.log("Error at getUnverifiedAccounts()");
+    ResponseBuilder.errorResponse(res);
+  }
+};
+
+// Delete Account
+export const deleteAccount = async (req, res) => {
+  try {
+    const {teacher_id}=req.params
+    await deleteAccountDb(res,teacher_id);
+  } catch (error) {
+    console.log("Error at deleteAccount()");
+    ResponseBuilder.errorResponse(res);
   }
 };

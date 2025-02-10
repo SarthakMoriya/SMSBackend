@@ -1,5 +1,10 @@
 import pool from "../db/connectDb.js";
-import { selectCourseExamsQuery } from "../db/queries.js";
+import {
+  deleteAccountQ,
+  getUnApprovedAccs,
+  selectCourseExamsQuery,
+  updateAccVerificationStatus,
+} from "../db/queries.js";
 import { insertAllCourseCache, setCourseExamsCache } from "../redis/queries.js";
 import { ResponseBuilder } from "../utils/response.js";
 
@@ -30,6 +35,63 @@ export const getCourseExamsDB = async (res, course_id, semester) => {
     } else {
       ResponseBuilder.errorResponse(res);
     }
+  } catch (error) {
+    error.sql
+      ? ResponseBuilder.sqlerrorResponse(res, { ...error })
+      : ResponseBuilder.errorResponse(res);
+  }
+};
+
+// FUNC TO APPROVE UNVERIFIED ACCOUNTS
+export const approveVerifiedAccountDB = async (res, status, teacher_id) => {
+  try {
+    const query = updateAccVerificationStatus();
+    const [rows] = await pool.query(query, [status, teacher_id]);
+    if (rows) {
+      ResponseBuilder.successResponse(
+        res,
+        {},
+        "Account status updated successfully"
+      );
+    } else {
+      ResponseBuilder.errorResponse(res);
+    }
+  } catch (error) {
+    error.sql
+      ? ResponseBuilder.sqlerrorResponse(res, { ...error })
+      : ResponseBuilder.errorResponse(res);
+  }
+};
+// FUNC TO GET ALL UNVERIFIED ACCOUNTS
+export const getUnVerifiedAccountDB = async (res, status, teacher_id) => {
+  try {
+    const query = getUnApprovedAccs();
+    const [rows] = await pool.query(query);
+    if (rows) {
+      ResponseBuilder.successResponse(
+        res,
+        { rows },
+        "Data Fetched successfully"
+      );
+    } else {
+      ResponseBuilder.errorResponse(res);
+    }
+  } catch (error) {
+    error.sql
+      ? ResponseBuilder.sqlerrorResponse(res, { ...error })
+      : ResponseBuilder.errorResponse(res);
+  }
+};
+
+// FUNC TO GET ALL UNVERIFIED ACCOUNTS
+export const deleteAccountDb = async (res, teacher_id) => {
+  try {
+    const query = deleteAccountQ();
+    const [rows] = await pool.query(query, [teacher_id]);
+    if (rows.affectedRows)ResponseBuilder.successResponse(res, {}, "Account Delete Successfully");
+    else if(!rows.affectedRows)ResponseBuilder.successResponse(res, {}, "No Account found");
+    else ResponseBuilder.errorResponse(res);
+    
   } catch (error) {
     error.sql
       ? ResponseBuilder.sqlerrorResponse(res, { ...error })
