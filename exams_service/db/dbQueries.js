@@ -119,3 +119,6 @@ export const getSemesterExamsTotalFromDb = (sql, db, stu_id) => {
     });
   });
 };
+
+
+export const updateExamQ=(db)=>`UPDATE ${db}.exams SET semester_number=?,obt_marks=?,total_marks=?,exam_date=? WHERE exam_id=?`
