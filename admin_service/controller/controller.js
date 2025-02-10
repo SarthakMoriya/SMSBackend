@@ -5,15 +5,15 @@ import {
   getCoursesCache,
   insertCourseCache,
   setCourseExamsCache,
+  updateCourseExamsCache,
 } from "../redis/queries.js";
 import { client } from "../redis/redis.js";
 import { ResponseBuilder } from "../utils/response.js";
-import { getCoursesFromDB } from "./dbController.js";
+import { getCourseExamsDB, getCoursesFromDB } from "./dbController.js";
 
 export const insertCourse = async (req, res) => {
   try {
     const { name, code, semesters } = req.body;
-    console.log(req.body);
     const query = `INSERT INTO master.courses (name,code,semesters) VALUES ('${name}','${code}','${semesters}')`;
     const [rows] = await pool.query(query);
     if (rows.insertId) {
@@ -38,8 +38,15 @@ export const insertCourseExam = async (req, res) => {
     const query = `INSERT INTO master.exams (course_id,name,max_marks,min_marks,semester,exam_code) 
                    VALUES ('${course_id}','${name}',${max_marks},${min_marks},${semester_no},${exam_code})`;
     const [rows] = await pool.query(query);
-    console.log(rows);
     if (rows.insertId) {
+      updateCourseExamsCache(
+        course_id,
+        name,
+        max_marks,
+        min_marks,
+        semester_no,
+        exam_code
+      );
       ResponseBuilder.successResponse(res);
     } else {
       ResponseBuilder.errorResponse(res);
@@ -56,7 +63,6 @@ export const getCourses = async (req, res) => {
   try {
     if (client.isOpen) {
       const courses = await getCoursesCache();
-      console.log(courses)
       return courses.length
         ? ResponseBuilder.successResponse(res, courses)
         : getCoursesFromDB(res);
@@ -76,19 +82,15 @@ export const getCoursesExams = async (req, res) => {
     const { course_id, semester } = req.query;
     if (client.isOpen) {
       const courses = await getCourseExamsCache(course_id, semester);
-      return ResponseBuilder.successResponse(res, courses);
-    } else {
-      const query = selectCourseExamsQuery();
-      const [rows] = await pool.query(query, [course_id, semester]);
-      if (rows.length) {
-        setCourseExamsCache(rows);
-        ResponseBuilder.successResponse(res, rows);
+      if (courses != null) {
+        return ResponseBuilder.successResponse(res, courses);
       } else {
-        ResponseBuilder.errorResponse(res);
+        getCourseExamsDB(res, course_id, semester);
       }
+    } else {
+      getCourseExamsDB(res, course_id, semester);
     }
   } catch (error) {
-    console.log(error);
     error.sql
       ? ResponseBuilder.sqlerrorResponse(res, { ...error })
       : ResponseBuilder.errorResponse(res);

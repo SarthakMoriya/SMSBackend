@@ -65,9 +65,33 @@ export const getCourseExamsCache = async (course_id, semester) => {
     for (let exam of Object.keys(exams)) {
       parsedExams.push(JSON.parse(exams[exam]));
     }
-    return parsedExams.length ? parsedExams : [];
+    return parsedExams.length ? parsedExams : null;
   } catch (error) {
     console.log("Error setting course names cache ");
+    return [];
+  }
+};
+export const updateCourseExamsCache = async (
+  course_id,
+  name,
+  max_marks,
+  min_marks,
+  semester_no,
+  exam_code
+) => {
+  try {
+    const exams = await client.HSET(
+      `course:${course_id}:semester:${semester_no}`,
+      `exam_code:${exam_code}`,
+      JSON.stringify({
+        name,
+        min_marks,
+        max_marks,
+      })
+    );
+    await client.expire(`course:${course_id}:semester:${semester_no}`, 3600);
+  } catch (error) {
+    console.log("Error setting course exam cache ");
     return [];
   }
 };
