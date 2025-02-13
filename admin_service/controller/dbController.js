@@ -1,6 +1,7 @@
 import pool from "../db/connectDb.js";
 import {
   deleteAccountQ,
+  getAllVerifiedAccsQ,
   getUnApprovedAccs,
   selectCourseExamsQuery,
   updateAccVerificationStatus,
@@ -70,7 +71,7 @@ export const getUnVerifiedAccountDB = async (res, status, teacher_id) => {
     if (rows) {
       ResponseBuilder.successResponse(
         res,
-        { rows },
+        [...rows],
         "Data Fetched successfully"
       );
     } else {
@@ -92,6 +93,21 @@ export const deleteAccountDb = async (res, teacher_id) => {
     else if(!rows.affectedRows)ResponseBuilder.successResponse(res, {}, "No Account found");
     else ResponseBuilder.errorResponse(res);
     
+  } catch (error) {
+    error.sql
+      ? ResponseBuilder.sqlerrorResponse(res, { ...error })
+      : ResponseBuilder.errorResponse(res);
+  }
+};
+
+// FUNC TO GET ALL VERIFIED ACCOUNTS
+export const getVerifiedAccountsDb = async (res) => {
+  try {
+    const query = getAllVerifiedAccsQ();
+    const [rows] = await pool.query(query);
+    if (rows.length)ResponseBuilder.successResponse(res, rows, "Account Fetched Successfully");
+    else ResponseBuilder.errorResponse(res);
+
   } catch (error) {
     error.sql
       ? ResponseBuilder.sqlerrorResponse(res, { ...error })

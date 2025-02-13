@@ -5,6 +5,7 @@ import {
   getCourses,
   getCoursesExams,
   getUnverifiedAccounts,
+  getVerifiedAccounts,
   insertCourse,
   insertCourseExam,
 } from "../controller/controller.js";
@@ -21,5 +22,7 @@ router.post("/add-course-exam", insertCourseExam);
 router.patch("/approve-unverified-accounts/:teacher_id/:status",approveVerifiedAccount);
 router.delete("/delete-account/:teacher_id", deleteAccount);
 router.get("/unverified-accounts", getUnverifiedAccounts);
+
+router.get('/verified-accounts',getVerifiedAccounts)
 
 export default router;
