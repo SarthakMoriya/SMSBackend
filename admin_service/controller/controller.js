@@ -15,6 +15,7 @@ import {
   getCourseExamsDB,
   getCoursesFromDB,
   getUnVerifiedAccountDB,
+  getVerifiedAccountsDb,
 } from "./dbController.js";
 
 export const insertCourse = async (req, res) => {
@@ -133,6 +134,17 @@ export const deleteAccount = async (req, res) => {
     await deleteAccountDb(res,teacher_id);
   } catch (error) {
     console.log("Error at deleteAccount()");
+    ResponseBuilder.errorResponse(res);
+  }
+};
+
+// Get Verified Accounts
+export const getVerifiedAccounts = async (req, res) => {
+  try {
+    await getVerifiedAccountsDb(res);
+  } catch (error) {
+    console.log(error)
+    console.log("Error at getVerifiedAccounts()");
     ResponseBuilder.errorResponse(res);
   }
 };

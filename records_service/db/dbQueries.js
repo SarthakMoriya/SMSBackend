@@ -3,7 +3,7 @@ import { sql } from "./connectDb.js";
 export const insertRecord = (data) => {
   console.log(data);
   return new Promise((resolve, reject) => {
-    let query = `INSERT INTO records(stu_name,date_enrolled,teacher_id,course,rollno) VALUES (?,?,?,?,?)`;
+    let query = `INSERT INTO records(stu_name,date_enrolled,teacher_id,course,rollno,uni_roll_no,image_url) VALUES (?,?,?,?,?,?,?)`;
 
     sql.execute(
       query,
@@ -13,6 +13,8 @@ export const insertRecord = (data) => {
         data["teacher_id"],
         data["course"],
         data["rollno"],
+        data["uni_roll_no"],
+        data["image_url"],
       ],
       (err, result) => {
         if (err) {
@@ -46,3 +48,5 @@ export const getCourseRecordsDB = (course) => {
     });
   });
 };
+
+export const getRecordQ=()=>`SELECT * from studentdb.records where studId = ? `

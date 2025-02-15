@@ -1,9 +1,25 @@
 import { getCourseRecordsDB, insertRecord } from "../db/dbQueries.js";
+import { client } from "../redis/redis.js";
+import { getRecordC } from "../redis/redisQueries.js";
 import { checkCourseExists } from "../utils/checkCourseExists.js";
+import {
+  errorLogger,
+  errorResponse,
+  successResponse,
+} from "../utils/helper.js";
+import { getRecordDb } from "./dbController.js";
 
 export const createStudent = async (req, res) => {
   try {
-    const { stu_name, date_enrolled, teacher_id, course, rollno } = req.body;
+    const {
+      stu_name,
+      date_enrolled,
+      teacher_id,
+      course,
+      rollno,
+      uni_roll_no,
+      image_url,
+    } = req.body;
 
     const insertRecordRes = await insertRecord({
       stu_name,
@@ -11,6 +27,8 @@ export const createStudent = async (req, res) => {
       teacher_id,
       course,
       rollno,
+      uni_roll_no,
+      image_url,
     });
     res.status(201).json(insertRecordRes);
   } catch (error) {
@@ -45,5 +63,21 @@ export const getCourseRecords = async (req, res) => {
     return res.status(status).json({ message, status });
   } finally {
     //close db connection
+  }
+};
+
+export const getRecord = async (req, res) => {
+  try {
+    if (client.isOpen) {
+      const data = await getRecordC(req.params.id);
+      if (data) {
+        return successResponse(res, { body: [data] });
+      } else {
+        getRecordDb(res, req.params.id);
+      }
+    }
+  } catch (error) {
+    errorLogger("getRecordDb()");
+    errorResponse(res);
   }
 };
