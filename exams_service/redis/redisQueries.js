@@ -3,7 +3,7 @@ import { client } from "./redis.js";
 export const setStudentSemesterExamsCache = async (studId, sem_num, exams) => {
   try {
     const cacheKey = `student:${studId}:semester:${sem_num}`;
-
+    
     // Store each exam as a field in the hash
     for (const exam of exams) {
       await client.hSet(cacheKey, `exam:${exam.exam_id}`, JSON.stringify(exam));
@@ -14,6 +14,26 @@ export const setStudentSemesterExamsCache = async (studId, sem_num, exams) => {
     console.error("Failed to cache exams:", error);
   }
 };
+
+// INCOMPlETE RIGHT NOW 
+export const getStudentSemesterExamsCache=async(studId,sem_num,exam)=>{
+  try {
+    console.log(studId,sem_num)
+    const cacheKey = `student:${studId}:semester:${sem_num}`;
+    const data=await client.HGETALL(cacheKey)
+    if(data  && data!=null){
+      await setStudentSemesterExamsCache(studId,sem_num,)
+      return []
+    }else{
+      return []
+    }
+  } catch (error) {
+    console.log(error)
+    console.log(" Error gettting getStudentSemesterExamsCache()")
+    return [];
+  }
+}
+
 export const setStudentSemesterExamsTotalCache = async (studId, semesters) => {
   try {
     const cacheKey = `student:${studId}:total`;
@@ -84,3 +104,4 @@ export const checkCourseCode = async (key, code) => {
     console.log("[REDIS] Error setting ", key);
   }
 };
+

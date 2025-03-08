@@ -9,16 +9,27 @@ import {
   getStudentExamsDB,
 } from "../db/dbQueries.js";
 import { client } from "../redis/redis.js";
-import { checkCourseCode, setCache } from "../redis/redisQueries.js";
+import { checkCourseCode, getStudentSemesterExamsCache, setCache } from "../redis/redisQueries.js";
 import { errorResponse, successResponse } from "../utils/helper.js";
 import { getExamCodesDb, updateExamDb } from "./controller.db.js";
 
 export const addExam = async (req, res) => {
   try {
     const data = req.body;
+    /*
+       - Save new exam to db
+    */
     let { status, code, message, body } = await addExamToDb(data.course_name, {
       ...data,
     });
+
+    /*
+      - delete  existing cache
+    */
+    if(client.isOpen){
+      const cacheKey = `student:${data.student_id}:semester:${data.semester_number}`;
+      await client.del(cacheKey)
+    }
     return res.status(code).json({ status, code, message, body });
   } catch (error) {
     console.log(error);
@@ -36,7 +47,7 @@ export const getStudentExams = async (req, res) => {
     const courseDB = req.params.course;
     if (!studentId)
       throw new Error({
-        message: "No stundet id provided",
+        message: "No stundent id provided",
         status: "fail",
         code: 404,
       });
