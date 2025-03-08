@@ -55,8 +55,6 @@ export const getStudentExamsDB = (stuId, courseDB) => {
             status: "fail",
           });
         }
-        console.log(err);
-        console.log(res);
         if (!res.length) {
           reject({
             message: `Failed to fetch exams for studentId: ${stuId}`,
@@ -94,10 +92,10 @@ export const getSemesterExamsFromDb = (sql, db, stu_id, sem_num) => {
 };
 export const getSemesterExamsTotalFromDb = (sql, db, stu_id) => {
   return new Promise((resolve, reject) => {
-    let query = `SELECT semester_number,SUM(obt_marks) as obt_marks,SUM(total_marks) as total_marks,FLOOR((SUM(obt_marks)/SUM(total_marks))*100) as overall_percentage
+    let query = `SELECT semester_number,exam_type,SUM(obt_marks) as obt_marks,SUM(total_marks) as total_marks,FLOOR((SUM(obt_marks)/SUM(total_marks))*100) as overall_percentage
                 FROM ${db}.exams
                 WHERE student_id=${stu_id}
-                GROUP BY semester_number
+                GROUP BY semester_number,exam_type
                 ORDER BY semester_number ASC;
                 `;
     sql.query(query, (err, res) => {
