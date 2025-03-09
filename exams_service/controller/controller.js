@@ -7,6 +7,7 @@ import {
   getSemesterExamsFromDb,
   getSemesterExamsTotalFromDb,
   getStudentExamsDB,
+  saveNewPercentage,
 } from "../db/dbQueries.js";
 import { client } from "../redis/redis.js";
 import { checkCourseCode, getStudentSemesterExamsCache, setCache } from "../redis/redisQueries.js";
@@ -22,7 +23,7 @@ export const addExam = async (req, res) => {
     let { status, code, message, body } = await addExamToDb(data.course_name, {
       ...data,
     });
-
+    await saveNewPercentage(data.course_name,data.student_id)
     /*
       - delete  existing cache
     */
@@ -30,6 +31,8 @@ export const addExam = async (req, res) => {
       let cacheKey = `student:${data.student_id}:semester:${data.semester_number}`;
       await client.del(cacheKey)
       cacheKey =`student:${data.student_id}:total`;
+      await client.del(cacheKey)
+      cacheKey =`record:${data.student_id}`;
       await client.del(cacheKey)
     }
     return res.status(code).json({ status, code, message, body });

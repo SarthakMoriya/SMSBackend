@@ -3,7 +3,7 @@ import {
   setStudentSemesterExamsTotalCache,
 } from "../redis/redisQueries.js";
 import { errorLogger } from "../utils/helper.js";
-import { sql } from "./connectDb.js";
+import pool, { sql } from "./connectDb.js";
 
 export const addExamToDb = (db, data) => {
   return new Promise((resolve, reject) => {
@@ -118,5 +118,28 @@ export const getSemesterExamsTotalFromDb = (sql, db, stu_id) => {
   });
 };
 
+export const saveNewPercentage = async (db, stuId) => {
+  try {
+    let query = `select Round((SUM(obt_marks)/SUM(total_marks))*100,2) as percentage
+                    FROM ${db}.exams
+                    where student_id=${stuId}
+                    and exam_type='ft';`;
+    const [rows] = await pool.query(query);
+    if (!rows.length) {
+      return null;
+    }
+    query = "UPDATE studentdb.records SET percentage=? WHERE studId=?";
+    await pool.query(query, [rows[0].percentage, stuId]);
 
-export const updateExamQ=(db)=>`UPDATE ${db}.exams SET semester_number=?,obt_marks=?,total_marks=?,exam_date=? WHERE exam_id=?`
+    query = `select max(semester_number) as curr_semester from ${db}.exams where student_id=?;`;
+    const [rows3]=await pool.query(query, [stuId]);
+
+    query = `UPDATE studentdb.records SET curr_semester=? where studId=?;`;
+    await pool.query(query, [rows3[0].curr_semester,stuId]);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const updateExamQ = (db) =>
+  `UPDATE ${db}.exams SET semester_number=?,obt_marks=?,total_marks=?,exam_date=? WHERE exam_id=?`;
