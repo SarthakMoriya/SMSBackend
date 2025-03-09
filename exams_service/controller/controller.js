@@ -27,7 +27,9 @@ export const addExam = async (req, res) => {
       - delete  existing cache
     */
     if(client.isOpen){
-      const cacheKey = `student:${data.student_id}:semester:${data.semester_number}`;
+      let cacheKey = `student:${data.student_id}:semester:${data.semester_number}`;
+      await client.del(cacheKey)
+      cacheKey =`student:${studId}:total`;
       await client.del(cacheKey)
     }
     return res.status(code).json({ status, code, message, body });
