@@ -43,7 +43,7 @@ export const setStudentSemesterExamsTotalCache = async (studId, semesters) => {
       console.log(semester);
       await client.hSet(
         cacheKey,
-        `semester:${semester.semester_number}`,
+        `semester:${semester.semester_number}:${semester.exam_type}`,
         JSON.stringify(semester)
       );
     }
