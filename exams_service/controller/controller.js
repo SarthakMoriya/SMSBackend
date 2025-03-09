@@ -9,16 +9,29 @@ import {
   getStudentExamsDB,
 } from "../db/dbQueries.js";
 import { client } from "../redis/redis.js";
-import { checkCourseCode, setCache } from "../redis/redisQueries.js";
+import { checkCourseCode, getStudentSemesterExamsCache, setCache } from "../redis/redisQueries.js";
 import { errorResponse, successResponse } from "../utils/helper.js";
 import { getExamCodesDb, updateExamDb } from "./controller.db.js";
 
 export const addExam = async (req, res) => {
   try {
     const data = req.body;
+    /*
+       - Save new exam to db
+    */
     let { status, code, message, body } = await addExamToDb(data.course_name, {
       ...data,
     });
+
+    /*
+      - delete  existing cache
+    */
+    if(client.isOpen){
+      let cacheKey = `student:${data.student_id}:semester:${data.semester_number}`;
+      await client.del(cacheKey)
+      cacheKey =`student:${data.student_id}:total`;
+      await client.del(cacheKey)
+    }
     return res.status(code).json({ status, code, message, body });
   } catch (error) {
     console.log(error);
@@ -36,7 +49,7 @@ export const getStudentExams = async (req, res) => {
     const courseDB = req.params.course;
     if (!studentId)
       throw new Error({
-        message: "No stundet id provided",
+        message: "No stundent id provided",
         status: "fail",
         code: 404,
       });
@@ -93,20 +106,27 @@ export const getSemesterExamsOverallTotal = async (req, res) => {
     if (!studId || !course) {
       return errorResponse(res, { message: "Invalid Params" });
     }
-    let cache = await client.hGetAll(`student:${studId}:total`);
-    if (Object.keys(cache).length) {
-      const semesterTotal = Object.values(cache).map((semester) =>
-        JSON.parse(semester)
-      );
-      return successResponse(res, {
-        message: "data fetched successfully from redis",
-        code: 200,
-        status: "success",
-        body: semesterTotal.sort(
-          (a, b) => a.semester_number - b.semester_number
-        ),
-      });
-    } else {
+    if(client.isOpen){
+
+      let cache = await client.hGetAll(`student:${studId}:total`);
+      if (Object.keys(cache).length) {
+        const semesterTotal = Object.values(cache).map((semester) =>
+          JSON.parse(semester)
+        );
+        return successResponse(res, {
+          message: "data fetched successfully from redis",
+          code: 200,
+          status: "success",
+          body: semesterTotal.sort(
+            (a, b) => a.semester_number - b.semester_number
+          ),
+        });
+      } else {
+        const exams = await getSemesterExamsTotalFromDb(sql, course, studId);
+        console.log(exams)
+        return res.status(200).json({ ...exams });
+      }
+    }else{
       const exams = await getSemesterExamsTotalFromDb(sql, course, studId);
       return res.status(200).json({ ...exams });
     }
