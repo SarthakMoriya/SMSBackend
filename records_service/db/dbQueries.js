@@ -36,7 +36,7 @@ export const insertRecord = (data) => {
 
 export const getCourseRecordsDB = (course) => {
   return new Promise((resolve, reject) => {
-    sql.query(`SELECT * FROM records WHERE course=?`, [course], (err, res) => {
+    sql.execute(`SELECT * FROM records WHERE course=?`, [course], (err, res) => {
       if (err) {
         reject({
           message: `Failed to fetch ${course} records`,
@@ -50,3 +50,4 @@ export const getCourseRecordsDB = (course) => {
 };
 
 export const getRecordQ=()=>`SELECT * from studentdb.records where studId = ? `
+export const deleteRecordQ=()=>`DELETE from studentdb.records where studId = ? `
