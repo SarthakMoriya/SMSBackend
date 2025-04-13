@@ -25,6 +25,7 @@ export const getExamCodesDb = async (res, code) => {
 };
 
 export const updateExamDb = async (res, data) => {
+  console.log(data)
   try {
     let query = updateExamQ(data.course);
     console.log(query);
@@ -47,6 +48,8 @@ export const updateExamDb = async (res, data) => {
       //   exam_type: data.exam_type,
       //   exam_name: data.exam_name
       // });
+      console.log("EXAM UPDATED SUCCESS")
+      console.log(rows)
       if(client.isOpen){
             let cacheKey = `student:${data.student_id}:semester:${data.semester_no}`;
             await client.del(cacheKey)

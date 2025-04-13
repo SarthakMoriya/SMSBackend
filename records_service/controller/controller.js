@@ -7,7 +7,7 @@ import {
   errorResponse,
   successResponse,
 } from "../utils/helper.js";
-import { getRecordDb } from "./dbController.js";
+import { deleteRecordDb, getRecordDb } from "./dbController.js";
 
 export const createStudent = async (req, res) => {
   try {
@@ -76,6 +76,14 @@ export const getRecord = async (req, res) => {
         getRecordDb(res, req.params.id);
       }
     }
+  } catch (error) {
+    errorLogger("getRecordDb()");
+    errorResponse(res);
+  }
+};
+export const deleteRecord = async (req, res) => {
+  try {
+    deleteRecordDb(res, req.params.id);
   } catch (error) {
     errorLogger("getRecordDb()");
     errorResponse(res);
