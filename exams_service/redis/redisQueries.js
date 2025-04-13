@@ -9,7 +9,7 @@ export const setStudentSemesterExamsCache = async (studId, sem_num, exams) => {
       await client.hSet(cacheKey, `exam:${exam.exam_id}`, JSON.stringify(exam));
     }
 
-    console.log(`Exams cached for student ${studId}, semester ${sem_num}`);
+    // console.log(`Exams cached for student ${studId}, semester ${sem_num}`);
   } catch (error) {
     console.error("Failed to cache exams:", error);
   }
@@ -18,7 +18,7 @@ export const setStudentSemesterExamsCache = async (studId, sem_num, exams) => {
 // INCOMPlETE RIGHT NOW 
 export const getStudentSemesterExamsCache=async(studId,sem_num,exam)=>{
   try {
-    console.log(studId,sem_num)
+    // console.log(studId,sem_num)
     const cacheKey = `student:${studId}:semester:${sem_num}`;
     const data=await client.HGETALL(cacheKey)
     if(data  && data!=null){
@@ -40,7 +40,7 @@ export const setStudentSemesterExamsTotalCache = async (studId, semesters) => {
 
     // Store each semester ttoal as a field in the hash
     for (const semester of semesters) {
-      console.log(semester);
+      // console.log(semester);
       await client.hSet(
         cacheKey,
         `semester:${semester.semester_number}:${semester.exam_type}`,
@@ -48,7 +48,7 @@ export const setStudentSemesterExamsTotalCache = async (studId, semesters) => {
       );
     }
 
-    console.log(`Exams total cached for student ${studId}`);
+    // console.log(`Exams total cached for student ${studId}`);
   } catch (error) {
     console.error("Failed to cache exams:", error);
   }
@@ -62,7 +62,7 @@ export const updateStudentSemesterExamCache = async (studId, sem_num, exam) => {
     await client.hSet(cacheKey, `exam:${exam.exam_id}`, JSON.stringify(exam));
     await client.expire(cacheKey, 3600);
     await client.del(`student:${studId}:total`);
-    console.log(`Exams cached for student ${studId}, semester ${sem_num}`);
+    // console.log(`Exams cached for student ${studId}, semester ${sem_num}`);
   } catch (error) {
     console.error("Failed to cache exams:", error);
   }

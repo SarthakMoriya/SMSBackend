@@ -1,5 +1,6 @@
 import pool from "../db/connectDb.js";
 import { updateExamQ } from "../db/dbQueries.js";
+import { client } from "../redis/redis.js";
 import {
   setCache,
   updateStudentSemesterExamCache,
@@ -24,8 +25,8 @@ export const getExamCodesDb = async (res, code) => {
 };
 
 export const updateExamDb = async (res, data) => {
+  console.log(data)
   try {
-    console.log(data);
     let query = updateExamQ(data.course);
     console.log(query);
     const [rows] = await pool.query(query, [
@@ -35,17 +36,28 @@ export const updateExamDb = async (res, data) => {
       data.exam_date,
       data.exam_id,
     ]);
-    console.log(rows);
     if (rows) {
-      updateStudentSemesterExamCache(data.student_id,data.semester_no, {
-        exam_id: data.exam_id,
-        semester_no: data.semester_no,
-        obt_marks: data.obt_marks,
-        total_marks: data.total_marks,
-        exam_date: data.exam_date,
-        exam_type: data.exam_type,
-        exam_name: data.exam_name
-      });
+      // -- work fine , for time remove all cache for this id
+
+      // updateStudentSemesterExamCache(data.student_id,data.semester_no, {
+      //   exam_id: data.exam_id,
+      //   semester_no: data.semester_no,
+      //   obt_marks: data.obt_marks,
+      //   total_marks: data.total_marks,
+      //   exam_date: data.exam_date,
+      //   exam_type: data.exam_type,
+      //   exam_name: data.exam_name
+      // });
+      console.log("EXAM UPDATED SUCCESS")
+      console.log(rows)
+      if(client.isOpen){
+            let cacheKey = `student:${data.student_id}:semester:${data.semester_no}`;
+            await client.del(cacheKey)
+            cacheKey =`student:${data.student_id}:total`;
+            await client.del(cacheKey)
+            cacheKey =`record:${data.student_id}`;
+            await client.del(cacheKey)
+          }
       successResponse(res);
     } else {
       errorResponse(res);

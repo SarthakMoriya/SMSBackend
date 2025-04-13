@@ -12,8 +12,8 @@ app.use(cors());
 app.use('/records',router)
 
 
-app.listen(3001, () => {
+app.listen(3001, async() => {
   console.log("Server listening on port 3001");
-  connectDB()
-  establishRedis()
+  await connectDB()
+  await establishRedis()
 });
