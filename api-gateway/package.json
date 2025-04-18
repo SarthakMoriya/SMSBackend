@@ -1,0 +1,27 @@
+{
+  "name": "api-gateway",
+  "version": "1.0.0",
+  "description": "API gateway for project",
+  "main": "gateway.js",
+  "scripts": {
+    "start": "nodemon gateway.js"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SarthakMoriya/SMSBackend.git"
+  },
+  "author": "SarthakMoriya",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SarthakMoriya/SMSBackend/issues"
+  },
+  "homepage": "https://github.com/SarthakMoriya/SMSBackend#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-http-proxy": "^2.1.1",
+    "http-proxy-middleware": "^3.0.5"
+  }
+}
