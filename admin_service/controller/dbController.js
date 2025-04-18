@@ -105,10 +105,12 @@ export const getVerifiedAccountsDb = async (res) => {
   try {
     const query = getAllVerifiedAccsQ();
     const [rows] = await pool.query(query);
+    console.log(rows)
     if (rows.length)ResponseBuilder.successResponse(res, rows, "Account Fetched Successfully");
     else ResponseBuilder.errorResponse(res);
 
   } catch (error) {
+    console.log(error)
     error.sql
       ? ResponseBuilder.sqlerrorResponse(res, { ...error })
       : ResponseBuilder.errorResponse(res);
