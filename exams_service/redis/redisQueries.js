@@ -1,4 +1,4 @@
-import { client } from "./redis.js";
+import { redis as client } from "../exams.js";
 
 export const setStudentSemesterExamsCache = async (studId, sem_num, exams) => {
   try {

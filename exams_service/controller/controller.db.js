@@ -1,6 +1,6 @@
 import pool from "../db/connectDb.js";
 import { updateExamQ } from "../db/dbQueries.js";
-import { client } from "../redis/redis.js";
+import { redis as client } from "../exams.js";
 import {
   setCache,
   updateStudentSemesterExamCache,
