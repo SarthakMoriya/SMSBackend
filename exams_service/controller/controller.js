@@ -9,7 +9,7 @@ import {
   getStudentExamsDB,
   saveNewPercentage,
 } from "../db/dbQueries.js";
-import { client } from "../redis/redis.js";
+import { redis as client } from "../exams.js";
 import { checkCourseCode, getStudentSemesterExamsCache, setCache } from "../redis/redisQueries.js";
 import { errorResponse, successResponse } from "../utils/helper.js";
 import { getExamCodesDb, updateExamDb } from "./controller.db.js";

@@ -7,7 +7,7 @@ import {
   setCourseExamsCache,
   updateCourseExamsCache,
 } from "../redis/queries.js";
-import { client } from "../redis/redis.js";
+import { redis as client } from "../admin.js";
 import { ResponseBuilder } from "../utils/response.js";
 import {
   approveVerifiedAccountDB,

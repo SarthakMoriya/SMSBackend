@@ -1,4 +1,4 @@
-import { client } from "./redis.js";
+import { redis as client } from "../admin.js";
 
 // GETS ALL THE COURSES  STORED IN CACHE
 export const getCoursesCache = async () => {

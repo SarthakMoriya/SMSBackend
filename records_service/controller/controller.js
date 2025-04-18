@@ -1,5 +1,5 @@
 import { getCourseRecordsDB, insertRecord } from "../db/dbQueries.js";
-import { client } from "../redis/redis.js";
+import { redis as client } from "../records.js";
 import { getRecordC } from "../redis/redisQueries.js";
 import { checkCourseExists } from "../utils/checkCourseExists.js";
 import {
